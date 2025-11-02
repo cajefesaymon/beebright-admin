@@ -5,13 +5,9 @@ import { useAuth } from "../context/AuthContext";
 const ProtectedRoute = ({ children, allowedRole = "admin" }) => {
   const { user } = useAuth();
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRole && user.role !== allowedRole) {
+  if (!user) return <Navigate to="/login" replace />;
+  if (allowedRole && user.role !== allowedRole)
     return <Navigate to="/unauthorized" replace />;
-  }
 
   return children;
 };

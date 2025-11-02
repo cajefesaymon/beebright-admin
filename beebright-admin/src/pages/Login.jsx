@@ -25,6 +25,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full border border-neutral-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="admin@beebright.com"
               required
             />
           </div>
@@ -35,6 +36,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full border border-neutral-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="admin123"
               required
             />
           </div>
