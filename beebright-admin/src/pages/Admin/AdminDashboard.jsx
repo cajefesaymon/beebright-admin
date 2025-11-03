@@ -13,13 +13,13 @@ import {
 } from "lucide-react";
 
 // Import your pages
-import UsersPage from "./Admin/Users";
-import TutorsPage from "./Admin/Tutors";
-import AdminsPage from "./Admin/Admins";
-import AnnouncementsPage from "./Admin/Announcements";
-import EnrollmentManagementPage from "./Admin/EnrollmentManagement";
-import LogsPage from "./Admin/Logs";
-import SettingsPage from "./Admin/Settings";
+import UsersPage from "./Users";
+import TutorsPage from "./Tutors";
+import AdminsPage from "./Admins";
+import AnnouncementsPage from "./Announcements";
+import EnrollmentManagementPage from "./EnrollmentManagement";
+import LogsPage from "./Logs";
+import SettingsPage from "./Settings";
 
 const AdminDashboard = () => {
   const [activePage, setActivePage] = useState("Users");

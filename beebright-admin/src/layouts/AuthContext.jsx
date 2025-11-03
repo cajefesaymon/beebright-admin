@@ -1,50 +1,30 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // Load saved session
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+  const login = async (email, password) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-  const mockUsers = [
-    { email: "admin@beebright.com", password: "admin123", role: "admin" },
-    { email: "staff@beebright.com", password: "staff123", role: "staff" },
-  ];
-
-  const login = (email, password) => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-
-    console.log("Attempted login with:", cleanEmail, cleanPass); // Debug
-
-    const foundUser = mockUsers.find(
-      (u) =>
-        u.email.toLowerCase() === cleanEmail &&
-        u.password === cleanPass
-    );
-
-    if (foundUser) {
-      console.log("Login success:", foundUser);
-      setUser(foundUser);
-      localStorage.setItem("user", JSON.stringify(foundUser));
-      navigate("/admin/users");
-    } else {
-      console.error("Invalid credentials for:", cleanEmail);
-      alert("Invalid credentials");
+      if (!res.ok) throw new Error(data.message);
+      localStorage.setItem("token", data.token);
+      setUser(data.user); // ✅ works because setUser is defined above
+    } catch (err) {
+      alert(err.message);
     }
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setUser(null);
-    localStorage.removeItem("user");
-    navigate("/login");
   };
 
   return (
