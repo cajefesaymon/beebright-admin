@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import dotenv from "dotenv";
 import User from "./models/User.js";
+import Enrollment from "./models/Enrollment.js"; // ✅ NEW
 
 dotenv.config();
 
@@ -83,6 +84,35 @@ app.post("/api/login", async (req, res) => {
     res.json({ message: "Login successful", token, user });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================
+// 📘 ENROLLMENT ROUTES
+// ============================
+
+// Fetch all enrollments
+app.get("/api/enrollments", async (req, res) => {
+  try {
+    const enrollments = await Enrollment.find();
+    res.json(enrollments);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Approve / Reject enrollment
+app.put("/api/enrollments/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const updated = await Enrollment.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
