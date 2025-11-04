@@ -33,7 +33,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Logo / Header */}
       <div className="flex items-center gap-2 px-4 py-5 border-b">
         <img
-          src="/logo.png"
+          src="beebright-admin\public\beebrightlogo.jpg"
           alt="BeeBright Logo"
           className="w-10 h-10 rounded-full object-cover"
         />
