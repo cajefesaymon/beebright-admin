@@ -16,7 +16,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const pages = [
     { name: "Dashboard", path: "/admin", icon: <Home color="#FACC15" /> },
-    { name: "Enrollments", path: "/admin/enrollments", icon: <BookOpen color="#F97316" />, badge: 2 },
+   { name: "Enrollment", path: "/admin/enrollment", icon: <BookOpen color="#F97316" />, badge: 2 },
     { name: "Users", path: "/admin/users", icon: <Users color="#2563EB" /> },
     { name: "Admins", path: "/admin/admins", icon: <Shield color="#DC2626" /> },
     { name: "Tutors", path: "/admin/tutors", icon: <GraduationCap color="#8B5CF6" /> },

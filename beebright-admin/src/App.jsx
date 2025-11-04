@@ -1,8 +1,10 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
+// ✅ Pages
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import DashboardHome from "./pages/Admin/DashboardHome";
 import Users from "./pages/Admin/Users";
 import Tutors from "./pages/Admin/Tutors";
 import Admins from "./pages/Admin/Admins";
@@ -14,13 +16,16 @@ import Settings from "./pages/Admin/Settings";
 const App = () => {
   return (
     <Routes>
-      {/* Public Route */}
+      {/* Public Routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Admin Layout */}
+      {/* Admin Layout Route */}
       <Route path="/admin" element={<AdminDashboard />}>
-        <Route path="dashboard" element={<div>Dashboard Content</div>} />
+        {/* ✅ Default Dashboard page */}
+        <Route index element={<DashboardHome />} />
+        <Route path="dashboard" element={<DashboardHome />} />
+
         <Route path="users" element={<Users />} />
         <Route path="tutors" element={<Tutors />} />
         <Route path="admins" element={<Admins />} />
@@ -30,11 +35,11 @@ const App = () => {
         <Route path="settings" element={<Settings />} />
       </Route>
 
-      {/* 404 */}
+      {/* 404 Fallback */}
       <Route
         path="*"
         element={
-          <h1 className="text-center mt-10 text-2xl">
+          <h1 className="text-center mt-10 text-2xl text-red-500">
             404 - Page Not Found
           </h1>
         }
