@@ -1,248 +1,161 @@
 import React, { useState } from "react";
-import { Plus, X } from "lucide-react";
-import Card from "../../components/Card";
+import { Check, X, Mail, Phone, User } from "lucide-react";
 
 const EnrollmentManagement = () => {
-  const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editingEnrollment, setEditingEnrollment] = useState(null);
-
   const [enrollments, setEnrollments] = useState([
     {
       id: 1,
-      studentName: "Juan Dela Cruz",
-      subject: "Mathematics",
-      tutor: "Mr. Reyes",
-      schedule: "Mon & Wed, 3:00 PM - 4:30 PM",
-      status: "Active",
+      studentName: "Lucas Wong",
+      submitted: "Oct 18, 2025",
+      grade: "Grade 5",
+      address: "123 Main St, Manila",
+      parentName: "Mr. Henry Wong",
+      parentEmail: "henry.wong@email.com",
+      parentPhone: "09123456789",
+      schedule: "Mon-Wed-Fri, 4:00 PM",
+      subjects: ["Math", "Science"],
+      status: "Pending",
     },
     {
       id: 2,
-      studentName: "Maria Santos",
-      subject: "Science",
-      tutor: "Ms. Lopez",
-      schedule: "Tue & Thu, 1:00 PM - 2:30 PM",
-      status: "Completed",
+      studentName: "Sophia Lee",
+      submitted: "Oct 17, 2025",
+      grade: "Grade 4",
+      address: "456 Oak Ave, Quezon City",
+      parentName: "Mrs. Sarah Lee",
+      parentEmail: "sarah.lee@email.com",
+      parentPhone: "09187654321",
+      schedule: "Tue-Thu, 3:00 PM",
+      subjects: ["English", "Filipino"],
+      status: "Pending",
     },
   ]);
 
-  const filtered = enrollments.filter((e) =>
-    e.studentName.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleAdd = () => {
-    setEditingEnrollment(null);
-    setShowModal(true);
+  const handleStatusChange = (id, newStatus) => {
+    setEnrollments((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e))
+    );
   };
 
-  const handleEdit = (enrollment) => {
-    setEditingEnrollment(enrollment);
-    setShowModal(true);
-  };
-
-  const handleDelete = (id) => {
-    setEnrollments(enrollments.filter((e) => e.id !== id));
-  };
-
-  const handleSave = (formData) => {
-    if (editingEnrollment) {
-      setEnrollments(
-        enrollments.map((e) =>
-          e.id === editingEnrollment.id ? { ...formData, id: e.id } : e
-        )
-      );
-    } else {
-      setEnrollments([...enrollments, { ...formData, id: Date.now() }]);
-    }
-    setShowModal(false);
-  };
+  const pendingCount = enrollments.filter((e) => e.status === "Pending").length;
+  const approvedCount = enrollments.filter((e) => e.status === "Approved").length;
 
   return (
-    <Card>
+    <div className="p-6 bg-neutral-50 min-h-screen rounded-2xl">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display font-bold text-2xl text-neutral-900">
-          Enrollment Management 🎓
+        <h2 className="font-display font-bold text-2xl flex items-center gap-2 text-neutral-900">
+          📖 Enrollment Management
         </h2>
-        <button
-          onClick={handleAdd}
-          className="bg-blue-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-600 transition flex items-center gap-2"
-        >
-          <Plus size={20} /> New Enrollment
-        </button>
+        <div className="flex gap-3">
+          <span className="bg-orange-100 text-orange-700 text-sm font-semibold px-3 py-1 rounded-xl">
+            {pendingCount} Pending
+          </span>
+          <span className="bg-green-100 text-green-700 text-sm font-semibold px-3 py-1 rounded-xl">
+            {approvedCount} Approved
+          </span>
+        </div>
       </div>
 
-      {/* Search bar */}
-      <input
-        type="text"
-        placeholder="Search by student name..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-blue-500 focus:outline-none mb-6"
-      />
-
-      {/* Table */}
-      {filtered.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse rounded-xl overflow-hidden">
-            <thead className="bg-neutral-100">
-              <tr className="text-left text-neutral-700">
-                <th className="py-3 px-4">Student Name</th>
-                <th className="py-3 px-4">Subject</th>
-                <th className="py-3 px-4">Tutor</th>
-                <th className="py-3 px-4">Schedule</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((e) => (
-                <tr
-                  key={e.id}
-                  className="border-b border-neutral-200 hover:bg-neutral-50 transition"
-                >
-                  <td className="py-3 px-4">{e.studentName}</td>
-                  <td className="py-3 px-4">{e.subject}</td>
-                  <td className="py-3 px-4">{e.tutor}</td>
-                  <td className="py-3 px-4">{e.schedule}</td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        e.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {e.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-center space-x-3">
-                    <button
-                      onClick={() => handleEdit(e)}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(e.id)}
-                      className="text-red-600 hover:text-red-700 text-sm font-semibold"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-center py-8 text-neutral-500">No enrollments found.</p>
-      )}
-
-      {showModal && (
-        <EnrollmentModal
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-          editingEnrollment={editingEnrollment}
-        />
-      )}
-    </Card>
-  );
-};
-
-/* ---------------------- MODAL COMPONENT ---------------------- */
-const EnrollmentModal = ({ onClose, onSave, editingEnrollment }) => {
-  const [formData, setFormData] = useState(
-    editingEnrollment || {
-      studentName: "",
-      subject: "",
-      tutor: "",
-      schedule: "",
-      status: "Active",
-    }
-  );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-700"
-        >
-          <X size={22} />
-        </button>
-        <h3 className="text-xl font-bold mb-4 text-neutral-900">
-          {editingEnrollment ? "Edit Enrollment" : "New Enrollment"}
-        </h3>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <FormInput
-            label="Student Name"
-            value={formData.studentName}
-            onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-            required
-          />
-          <FormInput
-            label="Subject"
-            value={formData.subject}
-            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-            required
-          />
-          <FormInput
-            label="Tutor"
-            value={formData.tutor}
-            onChange={(e) => setFormData({ ...formData, tutor: e.target.value })}
-            required
-          />
-          <FormInput
-            label="Schedule"
-            value={formData.schedule}
-            onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-            placeholder="e.g. Mon & Wed, 3:00 PM - 4:30 PM"
-            required
-          />
-          <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1">
-              Status
-            </label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-blue-400"
-            >
-              <option>Active</option>
-              <option>Completed</option>
-              <option>Cancelled</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-xl font-semibold hover:bg-blue-600 transition"
+      {/* Enrollment Cards */}
+      <div className="space-y-5">
+        {enrollments.map((e) => (
+          <div
+            key={e.id}
+            className="bg-orange-50 border border-orange-100 rounded-2xl p-5 shadow-sm relative"
           >
-            {editingEnrollment ? "Save Changes" : "Add Enrollment"}
-          </button>
-        </form>
+            {/* Status Badge */}
+            <span
+              className={`absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full ${
+                e.status === "Pending"
+                  ? "bg-orange-500 text-white"
+                  : "bg-green-500 text-white"
+              }`}
+            >
+              {e.status.toUpperCase()}
+            </span>
+
+            {/* Student Info */}
+            <div className="flex justify-between flex-wrap gap-6">
+              <div>
+                <h3 className="font-bold text-lg text-neutral-900">
+                  {e.studentName}
+                </h3>
+                <p className="text-sm text-neutral-500">
+                  Submitted: {e.submitted}
+                </p>
+
+                <div className="mt-4">
+                  <p className="text-xs font-semibold text-neutral-500">
+                    STUDENT INFO
+                  </p>
+                  <p className="text-sm flex items-center gap-2 mt-1 text-neutral-800">
+                    <User size={14} /> {e.grade}
+                  </p>
+                  <p className="text-sm text-neutral-700">{e.address}</p>
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-xs font-semibold text-neutral-500">
+                    SUBJECTS REQUESTED
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    {e.subjects.map((s, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Parent Info */}
+              <div>
+                <p className="text-xs font-semibold text-neutral-500">
+                  PARENT CONTACT
+                </p>
+                <p className="text-sm flex items-center gap-2 mt-1 text-neutral-800">
+                  <User size={14} /> {e.parentName}
+                </p>
+                <p className="text-sm flex items-center gap-2 text-neutral-700">
+                  <Mail size={14} /> {e.parentEmail}
+                </p>
+                <p className="text-sm flex items-center gap-2 text-neutral-700">
+                  <Phone size={14} /> {e.parentPhone}
+                </p>
+
+                <div className="mt-4">
+                  <p className="text-xs font-semibold text-neutral-500">
+                    PREFERRED SCHEDULE
+                  </p>
+                  <p className="text-sm text-neutral-800">{e.schedule}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-5 flex gap-3 border-t border-neutral-200 pt-4">
+              <button
+                onClick={() => handleStatusChange(e.id, "Approved")}
+                className="flex-1 bg-green-500 text-white py-2 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-green-600 transition"
+              >
+                <Check size={18} /> Approve & Create Account
+              </button>
+              <button
+                onClick={() => handleStatusChange(e.id, "Rejected")}
+                className="flex-1 bg-red-500 text-white py-2 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition"
+              >
+                <X size={18} /> Reject
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
-
-/* ---------------------- REUSABLE INPUT ---------------------- */
-const FormInput = ({ label, ...props }) => (
-  <div>
-    <label className="block text-sm font-semibold text-neutral-700 mb-1">
-      {label}
-    </label>
-    <input
-      {...props}
-      className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-blue-400"
-    />
-  </div>
-);
 
 export default EnrollmentManagement;
