@@ -12,6 +12,9 @@ import Announcements from "./pages/Admin/Announcements";
 import EnrollmentManagement from "./pages/Admin/EnrollmentManagement";
 import Logs from "./pages/Admin/Logs";
 import Settings from "./pages/Admin/Settings";
+import Schedule from "./pages/Admin/Schedule"; // make sure the file exists
+
+
 
 const App = () => {
   return (
@@ -25,7 +28,7 @@ const App = () => {
         {/* ✅ Default Dashboard page */}
         <Route index element={<DashboardHome />} />
         <Route path="dashboard" element={<DashboardHome />} />
-
+        <Route path="schedule" element={<Schedule />} />
         <Route path="users" element={<Users />} />
         <Route path="tutors" element={<Tutors />} />
         <Route path="admins" element={<Admins />} />
