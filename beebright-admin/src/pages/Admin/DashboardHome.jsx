@@ -1,87 +1,104 @@
 import React from "react";
-import Card from "../../components/Card";
-import { Users, BookOpen, DollarSign, Megaphone } from "lucide-react";
+import { Users, Shield, GraduationCap, BarChart, BookOpen } from "lucide-react";
 
 const DashboardHome = () => {
   const stats = [
     {
       title: "Total Users",
-      value: "1,230",
-      icon: <Users className="text-blue-500" size={28} />,
-      color: "from-blue-500 to-blue-600",
+      value: "3",
+      icon: <Users className="w-6 h-6 text-purple-600" />,
+      border: "shadow-purple-100",
     },
     {
-      title: "Active Tutors",
-      value: "98",
-      icon: <BookOpen className="text-green-500" size={28} />,
-      color: "from-green-500 to-green-600",
+      title: "Admin Accounts",
+      value: "2",
+      icon: <Shield className="w-6 h-6 text-blue-600" />,
+      border: "shadow-blue-100",
     },
     {
-      title: "Payments This Month",
-      value: "₱ 45,700",
-      icon: <DollarSign className="text-yellow-500" size={28} />,
-      color: "from-yellow-500 to-yellow-600",
+      title: "Tutors",
+      value: "3",
+      icon: <GraduationCap className="w-6 h-6 text-green-600" />,
+      border: "shadow-green-100",
     },
     {
-      title: "Announcements",
-      value: "12",
-      icon: <Megaphone className="text-purple-500" size={28} />,
-      color: "from-purple-500 to-purple-600",
+      title: "Pending Enrollments",
+      value: "2",
+      icon: <BarChart className="w-6 h-6 text-pink-600" />,
+      border: "shadow-pink-100",
     },
   ];
 
-  return (
-    <div>
-      <h1 className="font-display text-3xl font-bold text-neutral-900 mb-8">
-        Welcome back, Admin 👋
-      </h1>
+  const enrollments = [
+    { name: "Lucas Wong", grade: "Grade 5", date: "Oct 18, 2025", status: "Pending" },
+    { name: "Sophia Lee", grade: "Grade 4", date: "Oct 17, 2025", status: "Pending" },
+    { name: "Ethan Cruz", grade: "Grade 6", date: "Oct 16, 2025", status: "Approved" },
+  ];
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+  return (
+    <div className="space-y-6">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-3xl p-6 shadow-lg">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          Admin Dashboard <span className="text-2xl">👨‍💼</span>
+        </h1>
+        <p className="text-sm text-purple-100 mt-1">
+          Complete overview of Bee Bright operations
+        </p>
+      </div>
+
+      {/* Stats Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
-          <Card key={idx} className="p-6 flex items-center justify-between">
-            <div>
-              <h3 className="text-neutral-600 font-semibold text-sm">{stat.title}</h3>
-              <p className="text-2xl font-bold text-neutral-900 mt-1">{stat.value}</p>
+          <div
+            key={idx}
+            className={`bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition ${stat.border}`}
+          >
+            <div className="flex flex-col items-start gap-3">
+              <div className="p-3 bg-gray-50 rounded-full">{stat.icon}</div>
+              <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+              <p className="text-gray-600 text-sm">{stat.title}</p>
             </div>
-            <div
-              className={`p-3 rounded-2xl bg-gradient-to-br ${stat.color} bg-opacity-20 shadow-inner`}
-            >
-              {stat.icon}
-            </div>
-          </Card>
+          </div>
         ))}
       </div>
 
-      {/* Placeholder for analytics / recent activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-neutral-800 mb-4">
-            Recent Enrollments
+      {/* Recent Enrollments */}
+      <div className="bg-white rounded-2xl shadow-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <BookOpen className="text-orange-500" /> Recent Enrollments
           </h2>
-          <ul className="space-y-3">
-            <li className="border-b border-neutral-200 pb-2">John Doe — Math 101</li>
-            <li className="border-b border-neutral-200 pb-2">Jane Smith — Science 202</li>
-            <li className="border-b border-neutral-200 pb-2">Chris Evans — English 303</li>
-          </ul>
-        </Card>
+          <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+            2 pending
+          </span>
+        </div>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-neutral-800 mb-4">
-            System Notifications
-          </h2>
-          <ul className="space-y-3">
-            <li className="border-b border-neutral-200 pb-2 text-neutral-700">
-              Tutor “Mike Dela Cruz” approved.
+        <ul className="divide-y divide-gray-200">
+          {enrollments.map((enroll, i) => (
+            <li key={i} className="flex justify-between py-3 items-center">
+              <div>
+                <p className="font-semibold text-gray-800">{enroll.name}</p>
+                <p className="text-sm text-gray-500">
+                  {enroll.grade} • {enroll.date}
+                </p>
+              </div>
+              <span
+                className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                  enroll.status === "Approved"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-orange-100 text-orange-600"
+                }`}
+              >
+                {enroll.status}
+              </span>
             </li>
-            <li className="border-b border-neutral-200 pb-2 text-neutral-700">
-              Payment #4321 processed successfully.
-            </li>
-            <li className="border-b border-neutral-200 pb-2 text-neutral-700">
-              New announcement: “Holiday Schedule.”
-            </li>
-          </ul>
-        </Card>
+          ))}
+        </ul>
+
+        <button className="w-full mt-5 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-xl transition">
+          View All Enrollments
+        </button>
       </div>
     </div>
   );
