@@ -13,14 +13,18 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Connect to MongoDB
+// ====================================
+// ✅ CONNECT TO MONGODB (yourDatabaseName)
+// ====================================
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    dbName: "yourDatabaseName", // ✅ ensures correct database
+  })
   .then(() => {
-    console.log("✅ MongoDB connected");
+    console.log("✅ Connected to MongoDB database: yourDatabaseName");
     createDemoAccount(); // ⬅️ Create demo account after DB connects
   })
-  .catch((err) => console.error("❌ MongoDB error:", err));
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // --- Auto-create Demo Admin Account ---
 async function createDemoAccount() {
@@ -50,7 +54,9 @@ async function createDemoAccount() {
   }
 }
 
-// --- Register (for testing only) ---
+// ====================================
+// 🧩 REGISTER (for testing only)
+// ====================================
 app.post("/api/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -66,7 +72,9 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// --- Login ---
+// ====================================
+// 🔑 LOGIN
+// ====================================
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -87,9 +95,9 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// ============================
+// ====================================
 // 📘 ENROLLMENT ROUTES
-// ============================
+// ====================================
 
 // Fetch all enrollments
 app.get("/api/enrollments", async (req, res) => {
@@ -116,5 +124,8 @@ app.put("/api/enrollments/:id", async (req, res) => {
   }
 });
 
+// ====================================
+// 🚀 START SERVER
+// ====================================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
