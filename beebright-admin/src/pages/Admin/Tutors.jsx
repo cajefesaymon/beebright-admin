@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import Card from "../../components/Card";
 
@@ -7,22 +7,28 @@ const Tutors = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingTutor, setEditingTutor] = useState(null);
 
-  const [tutors, setTutors] = useState([
-    {
-      id: 1,
-      name: "Andrea Lopez",
-      email: "andrea@beebright.com",
-      phone: "09123456789",
-      expertise: ["Math", "Science"],
-    },
-    {
-      id: 2,
-      name: "Carlos Dela Cruz",
-      email: "carlos@beebright.com",
-      phone: "09987654321",
-      expertise: ["English", "Reading"],
-    },
-  ]);
+  const [tutors, setTutors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch tutors on component mount
+  useEffect(() => {
+    const fetchTutors = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/tutors");
+        if (!response.ok) throw new Error("Failed to fetch tutors");
+        const data = await response.json();
+        setTutors(data);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching tutors:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTutors();
+  }, []);
 
   const filteredTutors = tutors.filter((tutor) =>
     tutor.name.toLowerCase().includes(searchTutor.toLowerCase())
@@ -42,15 +48,36 @@ const Tutors = () => {
     setTutors(tutors.filter((t) => t.id !== id));
   };
 
-  const handleSave = (formData) => {
-    if (editingTutor) {
-      setTutors(
-        tutors.map((t) => (t.id === editingTutor.id ? { ...formData, id: t.id } : t))
-      );
-    } else {
-      setTutors([...tutors, { ...formData, id: Date.now() }]);
+  const handleSave = async (formData) => {
+    try {
+      if (editingTutor) {
+        // TODO: Implement edit functionality
+        setTutors(
+          tutors.map((t) => (t._id === editingTutor._id ? { ...formData, _id: t._id } : t))
+        );
+      } else {
+        // Create new tutor
+        const response = await fetch("http://localhost:5000/api/tutors", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to create tutor");
+        }
+
+        const newTutor = await response.json();
+        setTutors([...tutors, newTutor]);
+      }
+      setShowModal(false);
+    } catch (err) {
+      alert(err.message);
+      console.error("Error saving tutor:", err);
     }
-    setShowModal(false);
   };
 
   return (
@@ -90,14 +117,14 @@ const Tutors = () => {
             {filteredTutors.length > 0 ? (
               filteredTutors.map((tutor) => (
                 <tr
-                  key={tutor.id}
+                  key={tutor._id}
                   className="border-b border-neutral-100 hover:bg-neutral-50 transition"
                 >
                   <td className="py-3 px-4 font-semibold text-neutral-900">{tutor.name}</td>
                   <td className="py-3 px-4 text-neutral-700">{tutor.email}</td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-2">
-                      {tutor.expertise.map((exp, idx) => (
+                      {tutor.expertise?.map((exp, idx) => (
                         <span
                           key={idx}
                           className="bg-purple-100 text-purple-700 px-2 py-1 rounded-md text-xs font-semibold"
@@ -116,7 +143,7 @@ const Tutors = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(tutor.id)}
+                      onClick={() => handleDelete(tutor._id)}
                       className="ml-2 text-red-600 hover:text-red-700 font-semibold text-sm"
                     >
                       Delete

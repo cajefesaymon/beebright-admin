@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors()); // Allow all origins in development
 
 // ====================================
 // ✅ CONNECT TO MONGODB
@@ -182,6 +182,53 @@ app.put("/api/enrollments/:id", async (req, res) => {
 
 // ====================================
 // 🚀 START SERVER
+// ====================================
+// ============================
+// 👨‍🏫 TUTOR ROUTES
+// ============================
+
+// Get all tutors
+app.get("/api/tutors", async (req, res) => {
+  try {
+    const tutors = await User.find({ role: "tutor" }).select("-password");
+    res.json(tutors);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create new tutor
+app.post("/api/tutors", async (req, res) => {
+  try {
+    const { name, email, phone, expertise, password = "tutor123" } = req.body;
+    
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const tutor = await User.create({
+      name,
+      email,
+      phone,
+      expertise,
+      password: hashedPassword,
+      role: "tutor"
+    });
+
+    const tutorResponse = tutor.toObject();
+    delete tutorResponse.password;
+
+    res.status(201).json(tutorResponse);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ====================================
+// 🚀 START SERVER (Keep this at the end)
 // ====================================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
