@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchRecentEnrollments = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/enrollments");
+        const res = await fetch("http://localhost:5001/api/enrollments");
         if (!res.ok) throw new Error("Failed to fetch enrollments");
         const data = await res.json();
 

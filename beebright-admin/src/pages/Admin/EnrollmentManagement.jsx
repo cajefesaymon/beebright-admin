@@ -9,7 +9,7 @@ const EnrollmentManagement = () => {
   useEffect(() => {
     const fetchEnrollments = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/enrollments");
+        const response = await fetch("http://localhost:5001/api/enrollments");
         const data = await response.json();
         // show only pending enrollments
         setEnrollments(data.filter((e) => e.status === "pending"));
@@ -25,7 +25,7 @@ const EnrollmentManagement = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await fetch(`http://localhost:5000/api/enrollments/${id}`, {
+      await fetch(`http://localhost:5001/api/enrollments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

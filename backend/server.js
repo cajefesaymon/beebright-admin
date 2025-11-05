@@ -284,5 +284,5 @@ app.post("/api/tutors", async (req, res) => {
 // ====================================
 // 🚀 START SERVER (Keep this at the end)
 // ====================================
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

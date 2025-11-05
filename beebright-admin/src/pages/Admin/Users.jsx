@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import Card from "../../components/Card";
 
-const API_URL = "http://localhost:5000/api/enrollments";
+const API_URL = "http://localhost:5001/api/enrollments";
 
 const Users = () => {
   const [searchUser, setSearchUser] = useState("");

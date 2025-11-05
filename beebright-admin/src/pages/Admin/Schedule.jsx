@@ -27,9 +27,9 @@ const Schedule = () => {
   const fetchData = async () => {
     try {
       const [tutorRes, studentRes, scheduleRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/tutors"),
-        axios.get("http://localhost:5000/api/enrollments"),
-        axios.get("http://localhost:5000/api/schedules"),
+        axios.get("http://localhost:5001/api/tutors"),
+        axios.get("http://localhost:5001/api/enrollments"),
+        axios.get("http://localhost:5001/api/schedules"),
       ]);
 
       setTutors(tutorRes.data || []);
@@ -92,15 +92,15 @@ const Schedule = () => {
       if (editingSlot) {
         // update
         await axios.put(
-          `http://localhost:5000/api/schedules/${slots[form.time + "|" + form.room]._id}`,
+          `http://localhost:5001/api/schedules/${slots[form.time + "|" + form.room]._id}`,
           payload
         );
       } else {
         // create
-        await axios.post("http://localhost:5000/api/schedules", payload);
+        await axios.post("http://localhost:5001/api/schedules", payload);
       }
 
-      const res = await axios.get("http://localhost:5000/api/schedules");
+      const res = await axios.get("http://localhost:5001/api/schedules");
       const updatedMap = {};
       res.data.forEach((item) => {
         updatedMap[item.time + "|" + item.room] = item;
@@ -121,7 +121,7 @@ const Schedule = () => {
     if (!slot || !slot._id) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/schedules/${slot._id}`);
+      await axios.delete(`http://localhost:5001/api/schedules/${slot._id}`);
       setSlots((prev) => ({ ...prev, [key]: null }));
     } catch (error) {
       console.error("Delete error:", error);

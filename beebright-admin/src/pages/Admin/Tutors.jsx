@@ -16,7 +16,7 @@ const Tutors = () => {
   useEffect(() => {
     const fetchTutors = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/tutors");
+        const response = await fetch("http://localhost:5001/api/tutors");
         if (!response.ok) throw new Error("Failed to fetch tutors");
         const data = await response.json();
         setTutors(data);
@@ -47,7 +47,7 @@ const Tutors = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this tutor?")) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/tutors/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/tutors/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete tutor");
@@ -64,7 +64,7 @@ const Tutors = () => {
       if (editingTutor) {
         // Update existing tutor
         const response = await fetch(
-          `http://localhost:5000/api/tutors/${editingTutor._id}`,
+          `http://localhost:5001/api/tutors/${editingTutor._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -80,7 +80,7 @@ const Tutors = () => {
         );
       } else {
         // Create new tutor
-        const response = await fetch("http://localhost:5000/api/tutors", {
+        const response = await fetch("http://localhost:5001/api/tutors", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
