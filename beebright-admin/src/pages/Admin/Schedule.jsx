@@ -24,30 +24,31 @@ const Schedule = () => {
 
   // ✅ Fetch tutors, students, and schedules from backend
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tutorRes, studentRes, scheduleRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/tutors"),
-          axios.get("http://localhost:5000/api/enrollments"),
-          axios.get("http://localhost:5000/api/schedules"),
-        ]);
+  const fetchData = async () => {
+    try {
+      const [tutorRes, studentRes, scheduleRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/tutors"),
+        axios.get("http://localhost:5000/api/enrollments"),
+        axios.get("http://localhost:5000/api/schedules"),
+      ]);
 
-        setTutors(tutorRes.data || []);
-        setStudents(studentRes.data || []);
+      setTutors(tutorRes.data || []);
+      // ✅ Only approved students
+      setStudents((studentRes.data || []).filter((s) => s.status === "approved"));
 
-        // Convert fetched schedules into slot map
-        const scheduleMap = {};
-        (scheduleRes.data || []).forEach((item) => {
-          scheduleMap[item.time + "|" + item.room] = item;
-        });
-        setSlots(scheduleMap);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+      const scheduleMap = {};
+      (scheduleRes.data || []).forEach((item) => {
+        scheduleMap[item.time + "|" + item.room] = item;
+      });
+      setSlots(scheduleMap);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
+
 
   const openCreate = (time = defaultTimes[0], room = defaultRooms[0]) => {
     setEditingSlot(null);
