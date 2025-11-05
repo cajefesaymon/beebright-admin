@@ -23,26 +23,30 @@ const EnrollmentManagement = () => {
     fetchEnrollments();
   }, []);
 
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      await fetch(`http://localhost:5001/api/enrollments/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+  const handleStatusChange = async (id, newStatus, email) => {
+  try {
+    const response = await fetch(`http://localhost:5001/api/enrollments/${id}/${newStatus}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }), // send email address to backend
+    });
 
-      // Remove enrollment from local list after status change
-      setEnrollments((prev) => prev.filter((e) => e._id !== id));
+    if (!response.ok) throw new Error("Failed to update enrollment.");
 
-      if (newStatus === "approved") {
-        alert("Enrollment approved and added to users list!");
-      } else {
-        alert("Enrollment rejected and removed.");
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
+    // Remove enrollment from list after approving/rejecting
+    setEnrollments((prev) => prev.filter((e) => e._id !== id));
+
+    if (newStatus === "approved") {
+      alert("✅ Enrollment approved and temporary password sent via email!");
+    } else {
+      alert("❌ Enrollment rejected and removed.");
     }
-  };
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Failed to update enrollment. Check backend connection.");
+  }
+};
+
 
   if (loading) {
     return <div className="p-6 text-center">Loading enrollments...</div>;
@@ -126,11 +130,12 @@ const EnrollmentManagement = () => {
 
               <div className="mt-5 flex gap-3 border-t border-neutral-200 pt-4">
                 <button
-                  onClick={() => handleStatusChange(e._id, "approved")}
-                  className="flex-1 bg-green-500 text-white py-2 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-green-600 transition"
-                >
-                  <Check size={18} /> Approve & Create Account
-                </button>
+  onClick={() => handleStatusChange(e._id, "approved", e.contactEmail)}
+  className="flex-1 bg-green-500 text-white py-2 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-green-600 transition"
+>
+  <Check size={18} /> Approve & Create Account
+</button>
+
                 <button
                   onClick={() => handleStatusChange(e._id, "rejected")}
                   className="flex-1 bg-red-500 text-white py-2 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition"

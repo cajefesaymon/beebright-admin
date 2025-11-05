@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import User from "./models/User.js";
 import Enrollment from "./models/Enrollment.js"; // ✅ your schema with all fields
 import scheduleRoutes from "./routes/scheduleRoutes.js";
+import enrollmentRoutes from "./routes/enrollmentRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -280,7 +281,7 @@ app.post("/api/tutors", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+app.use("/api/enrollments", enrollmentRoutes);
 // ====================================
 // 🚀 START SERVER (Keep this at the end)
 // ====================================
