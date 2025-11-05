@@ -6,13 +6,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import User from "./models/User.js";
 import Enrollment from "./models/Enrollment.js"; // ✅ your schema with all fields
-
+import scheduleRoutes from "./routes/scheduleRoutes.js";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors()); // Allow all origins in development
-
+app.use("/api/schedules", scheduleRoutes);
 // ====================================
 // ✅ CONNECT TO MONGODB
 // ====================================
@@ -78,6 +78,57 @@ app.post("/api/login", async (req, res) => {
     res.json({ message: "Login successful", token, user });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+// ============================
+// 🧹 UPDATE tutor
+// ============================
+app.put("/api/tutors/:id", async (req, res) => {
+  try {
+    const { name, phone, expertise } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid tutor ID" });
+    }
+
+    const updatedTutor = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, phone, expertise },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedTutor) {
+      return res.status(404).json({ message: "Tutor not found" });
+    }
+
+    res.json(updatedTutor);
+  } catch (err) {
+    console.error("❌ Error updating tutor:", err);
+    res.status(500).json({ message: "Failed to update tutor" });
+  }
+});
+
+// ============================
+// ❌ DELETE tutor
+// ============================
+app.delete("/api/tutors/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid tutor ID" });
+    }
+
+    const deletedTutor = await User.findByIdAndDelete(id);
+
+    if (!deletedTutor) {
+      return res.status(404).json({ message: "Tutor not found" });
+    }
+
+    res.json({ message: "Tutor deleted successfully" });
+  } catch (err) {
+    console.error("❌ Error deleting tutor:", err);
+    res.status(500).json({ message: "Server error deleting tutor" });
   }
 });
 
@@ -188,14 +239,17 @@ app.put("/api/enrollments/:id", async (req, res) => {
 // ============================
 
 // Get all tutors
+// ✅ Fetch only tutors
 app.get("/api/tutors", async (req, res) => {
   try {
     const tutors = await User.find({ role: "tutor" }).select("-password");
     res.json(tutors);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ Error fetching tutors:", err);
+    res.status(500).json({ message: "Failed to fetch tutors" });
   }
 });
+
 
 // Create new tutor
 app.post("/api/tutors", async (req, res) => {

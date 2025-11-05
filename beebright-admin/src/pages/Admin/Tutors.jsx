@@ -1,3 +1,4 @@
+// src/pages/Admin/Tutors.jsx
 import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import Card from "../../components/Card";
@@ -11,7 +12,7 @@ const Tutors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch tutors on component mount
+  // Fetch tutors from backend
   useEffect(() => {
     const fetchTutors = async () => {
       try {
@@ -26,7 +27,6 @@ const Tutors = () => {
         setLoading(false);
       }
     };
-
     fetchTutors();
   }, []);
 
@@ -44,24 +44,45 @@ const Tutors = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
-    setTutors(tutors.filter((t) => t.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this tutor?")) return;
+    try {
+      const response = await fetch(`http://localhost:5000/api/tutors/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete tutor");
+
+      setTutors(tutors.filter((t) => t._id !== id));
+    } catch (err) {
+      alert(err.message);
+      console.error("Error deleting tutor:", err);
+    }
   };
 
   const handleSave = async (formData) => {
     try {
       if (editingTutor) {
-        // TODO: Implement edit functionality
+        // Update existing tutor
+        const response = await fetch(
+          `http://localhost:5000/api/tutors/${editingTutor._id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to update tutor");
+        const updatedTutor = await response.json();
+
         setTutors(
-          tutors.map((t) => (t._id === editingTutor._id ? { ...formData, _id: t._id } : t))
+          tutors.map((t) => (t._id === updatedTutor._id ? updatedTutor : t))
         );
       } else {
         // Create new tutor
         const response = await fetch("http://localhost:5000/api/tutors", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
 
@@ -73,6 +94,7 @@ const Tutors = () => {
         const newTutor = await response.json();
         setTutors([...tutors, newTutor]);
       }
+
       setShowModal(false);
     } catch (err) {
       alert(err.message);
@@ -83,7 +105,9 @@ const Tutors = () => {
   return (
     <Card>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display font-bold text-2xl text-neutral-900">Tutor Management 👨‍🏫</h2>
+        <h2 className="font-display font-bold text-2xl text-neutral-900">
+          Tutor Management 👨‍🏫
+        </h2>
         <button
           onClick={handleAdd}
           className="bg-purple-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-purple-600 transition flex items-center gap-2"
@@ -101,66 +125,88 @@ const Tutors = () => {
         className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-purple-500 focus:outline-none mb-6"
       />
 
-      {/* Tutor Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b-2 border-neutral-200">
-              <th className="text-left py-3 px-4 font-bold text-neutral-700">Name</th>
-              <th className="text-left py-3 px-4 font-bold text-neutral-700">Email</th>
-              <th className="text-left py-3 px-4 font-bold text-neutral-700">Expertise</th>
-              <th className="text-left py-3 px-4 font-bold text-neutral-700">Phone</th>
-              <th className="text-left py-3 px-4 font-bold text-neutral-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTutors.length > 0 ? (
-              filteredTutors.map((tutor) => (
-                <tr
-                  key={tutor._id}
-                  className="border-b border-neutral-100 hover:bg-neutral-50 transition"
-                >
-                  <td className="py-3 px-4 font-semibold text-neutral-900">{tutor.name}</td>
-                  <td className="py-3 px-4 text-neutral-700">{tutor.email}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex flex-wrap gap-2">
-                      {tutor.expertise?.map((exp, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-purple-100 text-purple-700 px-2 py-1 rounded-md text-xs font-semibold"
-                        >
-                          {exp}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-neutral-700">{tutor.phone}</td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() => handleEdit(tutor)}
-                      className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tutor._id)}
-                      className="ml-2 text-red-600 hover:text-red-700 font-semibold text-sm"
-                    >
-                      Delete
-                    </button>
+      {/* Tutors Table */}
+      {loading ? (
+        <p className="text-center text-neutral-500 py-6">Loading tutors...</p>
+      ) : error ? (
+        <p className="text-center text-red-500 py-6">Error: {error}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b-2 border-neutral-200">
+                <th className="text-left py-3 px-4 font-bold text-neutral-700">
+                  Name
+                </th>
+                <th className="text-left py-3 px-4 font-bold text-neutral-700">
+                  Email
+                </th>
+                <th className="text-left py-3 px-4 font-bold text-neutral-700">
+                  Expertise
+                </th>
+                <th className="text-left py-3 px-4 font-bold text-neutral-700">
+                  Phone
+                </th>
+                <th className="text-left py-3 px-4 font-bold text-neutral-700">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTutors.length > 0 ? (
+                filteredTutors.map((tutor) => (
+                  <tr
+                    key={tutor._id}
+                    className="border-b border-neutral-100 hover:bg-neutral-50 transition"
+                  >
+                    <td className="py-3 px-4 font-semibold text-neutral-900">
+                      {tutor.name}
+                    </td>
+                    <td className="py-3 px-4 text-neutral-700">
+                      {tutor.email}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.expertise?.map((exp, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-purple-100 text-purple-700 px-2 py-1 rounded-md text-xs font-semibold"
+                          >
+                            {exp}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-neutral-700">
+                      {tutor.phone}
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => handleEdit(tutor)}
+                        className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tutor._id)}
+                        className="ml-2 text-red-600 hover:text-red-700 font-semibold text-sm"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center py-6 text-neutral-500">
+                    No tutors found.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-6 text-neutral-500">
-                  No tutors found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
         <TutorModal
@@ -212,7 +258,9 @@ const TutorModal = ({ onClose, onSave, editingTutor }) => {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-purple-400"
               required
             />
@@ -225,7 +273,9 @@ const TutorModal = ({ onClose, onSave, editingTutor }) => {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-purple-400"
               required
             />
@@ -238,7 +288,9 @@ const TutorModal = ({ onClose, onSave, editingTutor }) => {
             <input
               type="tel"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
               className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-purple-400"
               required
             />
@@ -255,7 +307,9 @@ const TutorModal = ({ onClose, onSave, editingTutor }) => {
                   ? formData.expertise.join(", ")
                   : formData.expertise
               }
-              onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, expertise: e.target.value })
+              }
               placeholder="Math, Science, English"
               className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-purple-400"
               required
