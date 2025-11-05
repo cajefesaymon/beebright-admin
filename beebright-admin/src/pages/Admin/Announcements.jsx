@@ -87,7 +87,7 @@ const Announcements = () => {
         </label>
 
         <div className="flex items-center gap-6 mb-4 text-sm text-neutral-700">
-          {["Students", "Parents", "Tutors"].map((role) => (
+          {["Students", "Parents", ].map((role) => (
             <label key={role} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"

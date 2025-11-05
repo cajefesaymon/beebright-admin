@@ -5,28 +5,31 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import dotenv from "dotenv";
 import User from "./models/User.js";
-import Enrollment from "./models/Enrollment.js"; // ✅ NEW
-
+import Enrollment from "./models/Enrollment.js"; // ✅ your schema with all fields
+import scheduleRoutes from "./routes/scheduleRoutes.js";
+import enrollmentRoutes from "./routes/enrollmentRoutes.js";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
-
+app.use(cors()); // Allow all origins in development
+app.use("/api/schedules", scheduleRoutes);
 // ====================================
-// ✅ CONNECT TO MONGODB (yourDatabaseName)
+// ✅ CONNECT TO MONGODB
 // ====================================
 mongoose
   .connect(process.env.MONGO_URI, {
-    dbName: "yourDatabaseName", // ✅ ensures correct database
+    dbName: "yourDatabaseName", // ✅ match your .env
   })
   .then(() => {
     console.log("✅ Connected to MongoDB database: yourDatabaseName");
-    createDemoAccount(); // ⬅️ Create demo account after DB connects
+    createDemoAccount();
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// --- Auto-create Demo Admin Account ---
+// ====================================
+// 🧩 CREATE DEMO ADMIN
+// ====================================
 async function createDemoAccount() {
   try {
     const demoEmail = "admin@beebright.com";
@@ -34,7 +37,7 @@ async function createDemoAccount() {
 
     const existing = await User.findOne({ email: demoEmail });
     if (existing) {
-      console.log("ℹ️ Demo account already exists");
+      console.log("ℹ️ Demo admin account already exists");
       return;
     }
 
@@ -55,35 +58,19 @@ async function createDemoAccount() {
 }
 
 // ====================================
-// 🧩 REGISTER (for testing only)
-// ====================================
-app.post("/api/register", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: "User already exists" });
-
-    const hashed = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ email, password: hashed, role: "admin" });
-
-    res.status(201).json({ message: "User created", user: newUser });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ====================================
 // 🔑 LOGIN
 // ====================================
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid email or password" });
+
+    if (!user)
+      return res.status(400).json({ message: "Invalid email or password" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid email or password" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -94,32 +81,153 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// ============================
+// 🧹 UPDATE tutor
+// ============================
+app.put("/api/tutors/:id", async (req, res) => {
+  try {
+    const { name, phone, expertise } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid tutor ID" });
+    }
+
+    const updatedTutor = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, phone, expertise },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedTutor) {
+      return res.status(404).json({ message: "Tutor not found" });
+    }
+
+    res.json(updatedTutor);
+  } catch (err) {
+    console.error("❌ Error updating tutor:", err);
+    res.status(500).json({ message: "Failed to update tutor" });
+  }
+});
+
+// ============================
+// ❌ DELETE tutor
+// ============================
+app.delete("/api/tutors/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid tutor ID" });
+    }
+
+    const deletedTutor = await User.findByIdAndDelete(id);
+
+    if (!deletedTutor) {
+      return res.status(404).json({ message: "Tutor not found" });
+    }
+
+    res.json({ message: "Tutor deleted successfully" });
+  } catch (err) {
+    console.error("❌ Error deleting tutor:", err);
+    res.status(500).json({ message: "Server error deleting tutor" });
+  }
+});
 
 // ====================================
 // 📘 ENROLLMENT ROUTES
 // ====================================
 
-// Fetch all enrollments
+// ✅ TEST ENDPOINT
+app.get("/", (req, res) => {
+  res.send("✅ BeeBright API is running...");
+});
+
+// ✅ GET all enrollments
 app.get("/api/enrollments", async (req, res) => {
   try {
     const enrollments = await Enrollment.find();
     res.json(enrollments);
   } catch (err) {
+    console.error("❌ Error fetching enrollments:", err);
+    res.status(500).json({ message: "Server error fetching enrollments" });
+  }
+});
+
+// ✅ CREATE a new enrollment
+app.post("/api/enrollments", async (req, res) => {
+  try {
+    const {
+      studentName,
+      age,
+      grade,
+      school,
+      password,
+      contactEmail,
+      contactPhone,
+      address,
+      schedule,
+      notes,
+      status,
+    } = req.body;
+
+    const newEnrollment = new Enrollment({
+      studentName,
+      age,
+      grade,
+      school,
+      password,
+      contactEmail,
+      contactPhone,
+      address,
+      schedule,
+      notes,
+      status: status || "pending",
+    });
+
+    await newEnrollment.save();
+    res.status(201).json(newEnrollment);
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Approve / Reject enrollment
+// ✅ APPROVE / REJECT enrollment (auto-create user)
 app.put("/api/enrollments/:id", async (req, res) => {
   try {
     const { status } = req.body;
-    const updated = await Enrollment.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    res.json(updated);
+    const enrollment = await Enrollment.findById(req.params.id);
+
+    if (!enrollment)
+      return res.status(404).json({ message: "Enrollment not found" });
+
+    enrollment.status = status;
+    await enrollment.save();
+
+    // ✅ Auto-create user if approved
+    if (status === "approved") {
+      const existingUser = await User.findOne({ email: enrollment.contactEmail });
+
+      if (!existingUser) {
+        const randomPassword = Math.random().toString(36).slice(-8); // temporary password
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+        const newUser = new User({
+          email: enrollment.contactEmail,
+          password: hashedPassword,
+          role: "student", // or "parent"
+        });
+
+        await newUser.save();
+        console.log("🎉 User created from approved enrollment:", newUser.email);
+        console.log(`   Temporary password: ${randomPassword}`);
+      } else {
+        console.log(`ℹ️ User already exists for ${enrollment.contactEmail}`);
+      }
+    }
+
+    res.json(enrollment);
   } catch (err) {
+    console.error("❌ Error approving/rejecting enrollment:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -127,5 +235,55 @@ app.put("/api/enrollments/:id", async (req, res) => {
 // ====================================
 // 🚀 START SERVER
 // ====================================
-const PORT = process.env.PORT || 5000;
+// ============================
+// 👨‍🏫 TUTOR ROUTES
+// ============================
+
+// Get all tutors
+// ✅ Fetch only tutors
+app.get("/api/tutors", async (req, res) => {
+  try {
+    const tutors = await User.find({ role: "tutor" }).select("-password");
+    res.json(tutors);
+  } catch (err) {
+    console.error("❌ Error fetching tutors:", err);
+    res.status(500).json({ message: "Failed to fetch tutors" });
+  }
+});
+
+
+// Create new tutor
+app.post("/api/tutors", async (req, res) => {
+  try {
+    const { name, email, phone, expertise, password = "tutor123" } = req.body;
+    
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const tutor = await User.create({
+      name,
+      email,
+      phone,
+      expertise,
+      password: hashedPassword,
+      role: "tutor"
+    });
+
+    const tutorResponse = tutor.toObject();
+    delete tutorResponse.password;
+
+    res.status(201).json(tutorResponse);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+app.use("/api/enrollments", enrollmentRoutes);
+// ====================================
+// 🚀 START SERVER (Keep this at the end)
+// ====================================
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

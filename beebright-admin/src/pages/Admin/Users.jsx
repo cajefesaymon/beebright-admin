@@ -1,43 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import Card from "../../components/Card";
 
+const API_URL = "http://localhost:5001/api/enrollments";
 
 const Users = () => {
   const [searchUser, setSearchUser] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [users, setUsers] = useState([]);
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Alex Chen",
-      role: "Student",
-      email: "alex@student.com",
-      phone: "09123456789",
-      joinDate: "Oct 1, 2025",
-      emoji: "🧑‍🎓",
-    },
-    {
-      id: 2,
-      name: "Mrs. Chen",
-      role: "Parent",
-      email: "parent@beebright.com",
-      phone: "09123456790",
-      joinDate: "Sep 28, 2025",
-      emoji: "🧑‍🦳",
-    },
-    {
-      id: 3,
-      name: "Maria Santos",
-      role: "Student",
-      email: "maria@student.com",
-      phone: "09123456791",
-      joinDate: "Oct 10, 2025",
-      emoji: "👩‍🎓",
-    },
-  ]);
+  // ✅ Fetch users from backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        // Only show approved users
+        const approved = data.filter((e) => e.status === "approved");
+        setUsers(
+          approved.map((u) => ({
+            id: u._id,
+            name: u.studentName,
+            role: "Student",
+            email: u.contactEmail,
+            phone: u.contactPhone || "—",
+            joinDate: new Date(u.createdAt).toLocaleDateString(),
+            emoji: "🧑‍🎓",
+          }))
+        );
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter((u) =>
     u.name.toLowerCase().includes(searchUser.toLowerCase())
@@ -53,26 +50,66 @@ const Users = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
-    setUsers(users.filter((u) => u.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      setUsers(users.filter((u) => u.id !== id));
+    } catch (err) {
+      console.error("Error deleting user:", err);
+    }
   };
 
-  const handleSave = (formData) => {
-    if (editingUser) {
-      setUsers(users.map((u) => (u.id === editingUser.id ? { ...formData, id: u.id } : u)));
-    } else {
-      setUsers([...users, { ...formData, id: Date.now() }]);
+  const handleSave = async (formData) => {
+    try {
+      if (editingUser) {
+        // Update existing user
+        const res = await fetch(`${API_URL}/${editingUser.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const updated = await res.json();
+        setUsers(
+          users.map((u) =>
+            u.id === editingUser.id ? { ...u, ...updated } : u
+          )
+        );
+      } else {
+        // Add new enrollment
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            studentName: formData.name,
+            contactEmail: formData.email,
+            contactPhone: formData.phone,
+            status: "approved",
+          }),
+        });
+        const newUser = await res.json();
+        setUsers([
+          ...users,
+          {
+            id: newUser._id,
+            name: newUser.studentName,
+            role: "Student",
+            email: newUser.contactEmail,
+            phone: newUser.contactPhone,
+            joinDate: new Date(newUser.createdAt).toLocaleDateString(),
+            emoji: "🧑‍🎓",
+          },
+        ]);
+      }
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error saving user:", err);
     }
-    setShowModal(false);
   };
 
   return (
     <div className="flex h-screen bg-neutral-50">
-      {/* Sidebar */}
-   
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-2xl text-neutral-900 flex items-center gap-2">
             User Management <span>👥</span>
@@ -141,7 +178,7 @@ const Users = () => {
                 ) : (
                   <tr>
                     <td colSpan={6} className="text-center py-6 text-neutral-500">
-                      No users found.
+                      No approved users found.
                     </td>
                   </tr>
                 )}
@@ -188,13 +225,13 @@ const UserModal = ({ onClose, onSave, editingUser }) => {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {["name", "email", "phone", "joinDate"].map((field) => (
+          {["name", "email", "phone"].map((field) => (
             <div key={field}>
               <label className="block text-sm font-semibold text-neutral-700 mb-1 capitalize">
-                {field === "joinDate" ? "Join Date" : field}
+                {field}
               </label>
               <input
-                type={field === "joinDate" ? "date" : "text"}
+                type="text"
                 value={formData[field]}
                 onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
                 className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-blue-400"
@@ -202,19 +239,6 @@ const UserModal = ({ onClose, onSave, editingUser }) => {
               />
             </div>
           ))}
-
-          <div>
-            <label className="block text-sm font-semibold text-neutral-700 mb-1">Role</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="w-full px-4 py-2 rounded-xl border border-neutral-300 focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="Student">Student</option>
-              <option value="Parent">Parent</option>
-              <option value="Tutor">Tutor</option>
-            </select>
-          </div>
 
           <button
             type="submit"

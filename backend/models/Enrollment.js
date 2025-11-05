@@ -7,12 +7,18 @@ const enrollmentSchema = new mongoose.Schema(
     grade: String,
     school: String,
     password: String,
-    contactEmail: String,
+    contactEmail: { type: String, required: true },
     contactPhone: String,
     address: String,
     schedule: String,
     notes: String,
-    status: { type: String, default: "pending" },
+
+    // 👇 Restrict possible values and set a default
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

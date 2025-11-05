@@ -9,6 +9,7 @@ import {
   Bell,
   Settings,
   LogOut,
+  CalendarDays, // 🗓️ add this icon
 } from "lucide-react";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -16,11 +17,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const pages = [
     { name: "Dashboard", path: "/admin", icon: <Home color="#FACC15" /> },
-   { name: "Enrollment", path: "/admin/enrollment", icon: <BookOpen color="#F97316" />, badge: 2 },
+    { name: "Enrollment", path: "/admin/enrollment", icon: <BookOpen color="#F97316" /> },
     { name: "Users", path: "/admin/users", icon: <Users color="#2563EB" /> },
     { name: "Admins", path: "/admin/admins", icon: <Shield color="#DC2626" /> },
     { name: "Tutors", path: "/admin/tutors", icon: <GraduationCap color="#8B5CF6" /> },
     { name: "Announcements", path: "/admin/announcements", icon: <Bell color="#16A34A" /> },
+    
+    // ✅ Add this new schedule page
+    { name: "Schedule", path: "/admin/schedule", icon: <CalendarDays color="#10B981" /> },
+
     { name: "Settings", path: "/admin/settings", icon: <Settings color="#6B7280" /> },
   ];
 
@@ -30,13 +35,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         sidebarOpen ? "w-64" : "w-20"
       }`}
     >
-      {/* Logo / Header */}
       <div className="flex items-center gap-2 px-4 py-5 border-b">
         <img
-          src="beebright-admin\public\beebrightlogo.jpg"
-          alt="BeeBright Logo"
-          className="w-10 h-10 rounded-full object-cover"
-        />
+  src="/beebrightlogo.jpg"
+  alt="BeeBright Logo"
+  className="w-10 h-10 rounded-full object-cover"
+/>
+
         {sidebarOpen && (
           <h1 className="font-bold text-lg text-neutral-800">
             <span className="text-yellow-400">Bee</span>
@@ -45,26 +50,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         )}
       </div>
 
-      {/* Admin Info Card */}
       {sidebarOpen && (
         <div className="mx-4 mt-4 p-3 rounded-2xl bg-gradient-to-br from-yellow-50 to-white shadow-sm border border-yellow-100">
           <div className="flex items-center gap-3">
-            <img
-              src="/avatar.png"
-              alt="Admin"
-              className="w-10 h-10 rounded-full object-cover"
-            />
+            <img src="/admin.png" alt="Admin" className="w-10 h-10 rounded-full object-cover" />
             <div>
-              <h2 className="font-semibold text-sm text-neutral-800">
-                Admin User
-              </h2>
+              <h2 className="font-semibold text-sm text-neutral-800">Admin User</h2>
               <p className="text-xs text-neutral-500">Admin</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Navigation */}
       <nav className="flex-1 mt-4 space-y-1 px-2">
         {pages.map((p) => {
           const isActive = location.pathname === p.path;
@@ -82,19 +79,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 {p.icon}
                 {sidebarOpen && <span>{p.name}</span>}
               </div>
-
-              {/* Badge (for notifications) */}
-              {sidebarOpen && p.badge && (
-                <span className="bg-red-500 text-white text-xs font-semibold px-2 rounded-full">
-                  {p.badge}
-                </span>
-              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Logout */}
       <div className="border-t px-4 py-4">
         <button className="flex items-center gap-3 w-full text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl font-semibold transition">
           <LogOut size={18} />

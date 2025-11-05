@@ -42,62 +42,8 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Security Settings */}
-        <div>
-          <h3 className="font-bold text-neutral-900 mb-3">Security Settings</h3>
-          <div className="space-y-3">
-            <SettingItem
-              title="Two-Factor Authentication"
-              description="Add extra security to admin accounts"
-              actionLabel={twoFactorEnabled ? "Enabled" : "Enable"}
-              onAction={() => setTwoFactorEnabled(!twoFactorEnabled)}
-              actionClass={
-                twoFactorEnabled
-                  ? "bg-green-500 text-white"
-                  : "bg-primary-500 text-white"
-              }
-            />
-
-            <SettingItem
-              title="Change Password"
-              description="Last changed: Oct 1, 2025"
-              actionLabel="Change"
-              onAction={() => alert("Redirecting to password reset page...")}
-            />
-          </div>
-        </div>
-
-        {/* Payment Settings */}
-        <div>
-          <h3 className="font-bold text-neutral-900 mb-3">Payment Settings</h3>
-          <div className="space-y-3">
-            <SettingItem
-              title="Default Monthly Fee"
-              description={defaultFee}
-              actionLabel="Edit"
-              onAction={() => {
-                const fee = prompt("Enter new monthly fee:", defaultFee);
-                if (fee) setDefaultFee(fee);
-              }}
-            />
-
-            <SettingItem
-              title="Payment Methods"
-              description={paymentMethods.join(", ")}
-              actionLabel="Manage"
-              onAction={() => {
-                const methods = prompt(
-                  "Enter payment methods (comma-separated):",
-                  paymentMethods.join(", ")
-                );
-                if (methods)
-                  setPaymentMethods(
-                    methods.split(",").map((m) => m.trim()).filter(Boolean)
-                  );
-              }}
-            />
-          </div>
-        </div>
+        
+      
       </div>
     </Card>
   );
