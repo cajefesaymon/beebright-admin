@@ -37,10 +37,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     >
       <div className="flex items-center gap-2 px-4 py-5 border-b">
         <img
-          src="beebright-admin\\public\\beebrightlogo.jpg"
-          alt="BeeBright Logo"
-          className="w-10 h-10 rounded-full object-cover"
-        />
+  src="/beebrightlogo.jpg"
+  alt="BeeBright Logo"
+  className="w-10 h-10 rounded-full object-cover"
+/>
+
         {sidebarOpen && (
           <h1 className="font-bold text-lg text-neutral-800">
             <span className="text-yellow-400">Bee</span>
@@ -52,7 +53,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {sidebarOpen && (
         <div className="mx-4 mt-4 p-3 rounded-2xl bg-gradient-to-br from-yellow-50 to-white shadow-sm border border-yellow-100">
           <div className="flex items-center gap-3">
-            <img src="/avatar.png" alt="Admin" className="w-10 h-10 rounded-full object-cover" />
+            <img src="/admin.png" alt="Admin" className="w-10 h-10 rounded-full object-cover" />
             <div>
               <h2 className="font-semibold text-sm text-neutral-800">Admin User</h2>
               <p className="text-xs text-neutral-500">Admin</p>
