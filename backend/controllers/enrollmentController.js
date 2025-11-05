@@ -49,17 +49,64 @@ export const approveEnrollment = async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"BeeBright Admin" <${process.env.EMAIL_USER}>`,
-      to: enrollment.contactEmail,
-      subject: "Your Temporary Password - BeeBright",
-      html: `
-        <h3>Welcome, ${enrollment.studentName}!</h3>
-        <p>Your enrollment has been approved 🎉</p>
-        <p><b>Email:</b> ${enrollment.contactEmail}</p>
-        <p><b>Temporary Password:</b> ${tempPassword}</p>
-        <p>Please log in and change your password right away.</p>
-      `,
-    };
+  from: `"BeeBright Admin 🐝" <${process.env.EMAIL_USER}>`,
+  to: enrollment.contactEmail,
+  subject: "🐝 Welcome to BeeBright! Your Temporary Password",
+  html: `
+    <div style="
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #fffbea 0%, #fff4b0 100%);
+      padding: 40px 25px;
+      border-radius: 12px;
+      border: 2px solid #ffd54f;
+      color: #3e2f00;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+    ">
+
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Bee Icon" width="70" />
+        <h1 style="color: #ffb300; margin-top: 10px;">BeeBright Enrollment Approved! 🍯</h1>
+      </div>
+
+      <p style="font-size: 16px;">
+        Hi <b>${enrollment.studentName}</b>,<br/><br/>
+        Great news! Your BeeBright enrollment has been <b>approved</b>! 🎉<br/>
+        You can now buzz into your account using the credentials below:
+      </p>
+
+      <div style="
+        background: #fffde7;
+        border: 2px dashed #ffca28;
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        font-size: 15px;
+      ">
+        <p><b>🐝 Email:</b> ${enrollment.contactEmail}</p>
+        <p><b>🔑 Temporary Password:</b> <span style="color:#ff6f00">${tempPassword}</span></p>
+      </div>
+
+      <p style="font-size: 15px; line-height: 1.6;">
+        Please log in to your BeeBright account and change your password right away.<br/>
+        We’re excited to have you join our buzzing community of learners! 🐝💛
+      </p>
+
+      <div style="
+        text-align: center;
+        border-top: 1px solid #ffe082;
+        margin-top: 25px;
+        padding-top: 10px;
+        font-size: 13px;
+        color: #8d6e63;
+      ">
+        <p>© 2025 BeeBright | "Learn, Shine, and Bee Your Best!"</p>
+      </div>
+    </div>
+  `,
+};
+
 
     await transporter.sendMail(mailOptions);
 
